@@ -1,0 +1,162 @@
+﻿@using System.Xml;
+@model rssreader.Models.Feed
+
+@{
+    ViewData["Title"] = "Feed Details";
+}
+
+<h1>Feed Details</h1>
+<div>
+    <h4>Feed</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.URL)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.URL)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+    </dl>
+</div>
+
+<dd class="col-sm-10">
+    <table class="table">
+        <tr>
+            <th>
+                Articles(@Model.Articles.Count())
+            </th>
+            <th>
+                @using (Html.BeginForm("Load", "Feeds", FormMethod.Post))
+                {
+                    @Html.HiddenFor(model => model.Id)
+                    <input class="btn btn-link" type="submit" value="Load Feed Data" />
+                }
+            </th>
+        </tr>
+    </table>
+</dd>
+
+
+<form asp-action="Details" method="get">
+    <div class="form-actions no-color">
+        <dd class="col-sm-10">
+        <p>
+            Search <input type="text" id="search" name="SearchString" value="@ViewData["CurrentFilter"]" />
+
+                Date From <input type="date" id="fromDate" name="FromDate" value="@ViewData["FromDate"]"
+                    max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+
+                Date To <input type="date" id="toDate" name="ToDate" value="@ViewData["ToDate"]"
+                    max="@DateTime.Today.ToString("yyyy-MM-dd")" />            
+        </p>
+
+        <p>
+            <input type="submit" value="Search" class="btn btn-link" /> |
+            <a asp-action="Details" class="btn btn-link">Back to all articles</a>
+        </p>
+        </dd>   
+    </div>
+
+    <dd class="col-sm-10">
+        <table class="table">
+
+            <tr>
+            <th>
+                <a asp-action="Details" asp-route-sortOrder="@ViewData["NameSortParm"]">Title</a>
+            </th>
+                <th>Description</th>
+                <th>URL</th>
+            <th>
+                 <a asp-action="Details" asp-route-sortOrder="@ViewData["DateSortParm"]"
+                       asp-route-searchString="@ViewData["CurrentFilter"]"
+                       asp-route-fromDate="@ViewData["FromDate"]"
+                       asp-route-toDate="@ViewData["ToDate"]">Published Date</a>
+             </th>
+            </tr>
+
+        @if (Model.Articles != null)
+        {
+            @foreach (var item in Model.Articles)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(model => item.Title)</td>
+                    <td>@Html.DisplayFor(model => item.Description)</td>
+                    <td><a href="@Html.DisplayFor(model => item.URL)" target="_blank">link</a></td>
+                    <td>@Html.DisplayFor(model=> item.PubDate)</td>
+                </tr>
+            }
+        }
+        </table>
+    </dd>
+</form>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var encoded = decodeURIComponent(window.location.search);
+        var urlParams = new URLSearchParams(encoded);
+        
+        console.log(encoded);
+
+        if (urlParams.has('FromDate') && urlParams.has('ToDate')) {
+            console.log('in if..')
+
+            var fromDate = urlParams.get('FromDate');
+            var toDate = urlParams.get('ToDate');
+
+            console.log(fromDate);
+            console.log(toDate);
+
+            $('#fromDate').val(fromDate);
+            $('#toDate').val(toDate);
+
+        } else if (urlParams.has('fromDate') && urlParams.has('toDate')) {
+            console.log('in encoded if..')
+
+            var fromDate = urlParams.get('fromDate');
+
+            var date = new Date(fromDate);
+            date.setTime(date.getTime() + 60 * 60000);
+
+            console.log(date.toISOString());
+
+            fromDate = date.toISOString().split('T')[0]
+
+            var toDate = urlParams.get('toDate');
+            date = new Date(toDate);
+            date.setTime(date.getTime() + 60 * 60000);
+
+            toDate = date.toISOString().split('T')[0]
+            
+            console.log(fromDate);
+            console.log(toDate);
+
+            $('#fromDate').val(fromDate);
+            $('#toDate').val(toDate);
+        }
+        
+        if(urlParams.has('Search')){
+            var search = urlParams.get('Search');
+            $('Search').val(search);
+        }
+
+    });
+</script>

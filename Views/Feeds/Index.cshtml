@@ -1,0 +1,94 @@
+﻿@model IEnumerable<rssreader.Models.Feed>
+
+@{
+    ViewData["Title"] = "Feed List";
+}
+
+<h1>Feed List</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Search <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Search" class="btn btn-link" /> |
+            <a asp-action="Index" class="btn btn-link">Back to Full List</a>
+        </p>
+    </div>
+</form>
+
+<form asp-controller="Feeds" asp-action="Selection" method="post">
+    <table class="table" id="myTable" >
+    <thead>
+        <tr>
+                <th style="width:100px; text-align:center;">
+                    <span id="toggleAll" class="btn-link" onclick="return SelectAllCheckBox();">Check All</span>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.URL)
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]">
+                    @Html.DisplayNameFor(model => model.Name)</a>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) 
+        {
+            <tr>
+                <td style="text-align:center;">
+                    <input id=@item.Id type="checkbox" name="selectedFeeds" class="chkFeed" value=@item.Id />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.URL)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>           
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+    <p>
+        <input type="submit" value="Delete Selected" class="btn btn-link" />
+    </p>
+</form>
+
+
+    <script type="text/javascript">
+
+        function SelectAllCheckBox()
+        {
+        var boxes = document.getElementsByClassName('chkFeed');
+
+            for(var i=0; i<boxes.length; i++)
+            {
+                if (boxes[i].type == 'checkbox' && boxes[i].checked == false)
+                {
+                        boxes[i].checked = true;
+                        document.getElementById('toggleAll').innerText = "Uncheck All";
+
+
+                }else if (boxes[i].type == 'checkbox' && boxes[i].checked == true)
+                {
+                    boxes[i].checked = false;
+                    document.getElementById('toggleAll').innerText = "Check All";
+                }
+            }
+            return false;
+        }
+    </script>
